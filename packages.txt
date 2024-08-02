@@ -16,3 +16,7 @@ tabularx
 adjustbox
 indentfirst
 biblatex
+graphicx
+amsmath
+hyperref
+academicons

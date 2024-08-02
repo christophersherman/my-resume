@@ -28,6 +28,8 @@
 \usepackage[default]{roboto}
 
 \usepackage{mathdesign}
+\usepackage{graphicx}
+\usepackage{amsmath}
 \usepackage[cmintegrals,cmbraces]{newtxmath}
 
 \RequirePackage{latexsym}
