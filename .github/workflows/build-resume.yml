@@ -16,23 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install TinyTeX
-        run: |
-          wget -qO- "https://yihui.org/tinytex/install-bin-unix.sh" | sh -s -- --scheme=basic
-          export PATH=$HOME/.TinyTeX/bin/x86_64-linux:$PATH
-          tlmgr update --self
-          tlmgr install $(cat packages.txt | tr '\n' ' ') biber
-      - name: Add TinyTeX to PATH
-        run: |
-          echo "PATH=$HOME/.TinyTeX/bin/x86_64-linux:$PATH" >> $GITHUB_ENV
-
-      - name: Compile LaTeX to PDF
-        run: |
-          # The TinyTeX action should add TeX Live binaries to the PATH
-          # Attempting up to 3 times for latexmk to resolve references
-          latexmk -pdf -interaction=nonstopmode my_resume.tex
-          latexmk -pdf -interaction=nonstopmode my_resume.tex
-          latexmk -pdf -interaction=nonstopmode my_resume.tex
 
 
       - name: Upload PDF artifact
