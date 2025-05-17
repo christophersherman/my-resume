@@ -1,5 +1,6 @@
 FROM texlive/texlive:latest AS builder
 WORKDIR /app
+ENV TEXLIVE_INSTALL_REPO https://ctan.math.illinois.edu/systems/texlive/tlnet
 
 COPY my_resume.tex .
 COPY sections/ ./sections/
