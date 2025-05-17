@@ -5,6 +5,7 @@ COPY my_resume.tex .
 COPY sections/ ./sections/
 COPY packages.txt .
 COPY res.cls .
+COPY github.png .
 
 # 1. Update tlmgr itself
 RUN tlmgr update --self
