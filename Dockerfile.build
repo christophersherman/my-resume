@@ -1,13 +1,19 @@
 FROM texlive/texlive:latest AS builder
-
 WORKDIR /app
 
-COPY my_resume.tex ./
+COPY my_resume.tex .
 COPY sections/ ./sections/
-COPY packages.txt ./
-COPY res.cls ./
+COPY packages.txt .
+COPY res.cls .
 
-RUN tlmgr update --self \
- && tlmgr install $(cat packages.txt | xargs) biber \
- && tlmgr path add \
- && latexmk -pdf -interaction=nonstopmode my_resume.tex
+# 1. Update tlmgr itself
+RUN tlmgr update --self
+
+# 2. Try to install everything, but don’t error out if it's already present
+RUN tlmgr install $(cat packages.txt | xargs) biber || true
+
+# 3. Expose the TL binaries on $PATH
+RUN tlmgr path add
+
+# 4. Now actually compile (will fail if prerequisites truly missing)
+RUN latexmk -pdf -interaction=nonstopmode my_resume.tex
