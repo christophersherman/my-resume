@@ -7,5 +7,7 @@ COPY sections/ ./sections/
 COPY packages.txt ./
 COPY res.cls ./
 
-RUN tlmgr update --self && tlmgr install $(cat packages.txt | xargs) biber
-RUN latexmk -pdf -interaction=nonstopmode my_resume.tex
+RUN tlmgr update --self \
+ && tlmgr install $(cat packages.txt | xargs) biber \
+ && tlmgr path add \
+ && latexmk -pdf -interaction=nonstopmode my_resume.tex
