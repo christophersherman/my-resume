@@ -1,0 +1,62 @@
+name: Build Resume PDF and Docker Image
+
+on:
+  push:
+    branches:
+      - main # Or 'master' if that's your default branch
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Needed to push to GitHub Container Registry
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up TinyTeX
+        uses: JosephTymann/tinytex-action@v1
+        with:
+          # Install packages from the packages.txt file
+          # The action automatically runs tlmgr update --self first
+          # And installs biber by default
+          packages: |
+            $(cat packages.txt | tr '\n' ' ')
+          # Ensure all necessary OS packages for TinyTeX are present
+          install_extra_system_packages: true 
+
+      - name: Compile LaTeX to PDF
+        run: |
+          # The TinyTeX action should add TeX Live binaries to the PATH
+          # Attempting up to 3 times for latexmk to resolve references
+          latexmk -pdf -interaction=nonstopmode my_resume.tex
+          latexmk -pdf -interaction=nonstopmode my_resume.tex
+          latexmk -pdf -interaction=nonstopmode my_resume.tex
+
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-pdf
+          path: my_resume.pdf
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+          # Example with a specific image name if preferred:
+          # tags: ghcr.io/your-username/my-resume-website:latest 
+          # Ensure GITHUB_REPOSITORY_OWNER and GITHUB_EVENT_REPOSITORY_NAME are appropriate
+          # Or hardcode your username and repository name if simpler.

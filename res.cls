@@ -41,7 +41,7 @@
 \RequirePackage{enumitem} % Handles list environments
 \RequirePackage[hidelinks]{hyperref} % Settings for hyperlinks
 \RequirePackage{fancyhdr} % Create header and footer
-\RequirePackage[english]{babel}
+\RequirePackage[american]{babel}
 \RequirePackage{csquotes}
 \RequirePackage{tabularx} % Allows tables with automatically varying column widths
 \RequirePackage[export]{adjustbox} % Allows for easy resizing of tables or figures to fit page width
@@ -100,28 +100,28 @@
 
 % For a volunteer experience or education item (includes location but no supervisor info or hours worked)
 \newcommand{\resumeSubheading}[4]{
-  \vspace{-2pt}\item
+  \vspace{-3pt}\item
     \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
       \textbf{#1} & #2 \\
       \textit{#3} & \textit{ #4} \\
-    \end{tabular*}\vspace{-7pt}
+    \end{tabular*}\vspace{-8pt}
 }
 
 % For a volunteer experience or job related training item without a location
 \newcommand{\resumeSubheadingShort}[2]{
-  \vspace{-2pt}\item
+  \vspace{-3pt}\item
     \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
       \textbf{#1} & #2 \\
-    \end{tabular*}\vspace{-7pt}
+    \end{tabular*}\vspace{-8pt}
 }
 
 
 \newcommand{\resumeSubheadingWork}[4]{
-  \vspace{-2pt}\item
+  \vspace{-3pt}\item
     \begin{tabularx}{0.97\textwidth}[t]{l >{\raggedleft\arraybackslash}X}
       \textbf{#1} & #2 \\ % Job Title & Date
       \textit{#3} & \textit{#4} \\ % Employer Name & Job Address
-    \end{tabularx}\vspace{-7pt}
+    \end{tabularx}\vspace{-8pt}
 }
 
 
@@ -130,7 +130,7 @@
     \item
     \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
       \textit{#1} & \textit{ #2} \\
-    \end{tabular*}\vspace{-7pt}
+    \end{tabular*}\vspace{-8pt}
 }
 
 % Optional style for projects
@@ -138,10 +138,10 @@
     \item
     \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
       #1 & #2 \\
-    \end{tabular*}\vspace{-7pt}
+    \end{tabular*}\vspace{-8pt}
 }
 
-\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-5pt}}
 
 \renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
 
@@ -149,11 +149,11 @@
 \newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
 \newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
 \newcommand{\resumeItemListStart}{\begin{itemize}}
-\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-6pt}}
 
 % Usage: \cvpub{<citation>}
 \newcommand*{\cvpub}[1]{%
 	\leftskip 1.1cm
     \parindent -0.7cm
-    {#1}\vspace{3pt}
+    {#1}\vspace{2pt}
 }
