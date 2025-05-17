@@ -1,22 +1,22 @@
 FROM texlive/texlive:latest AS builder
 WORKDIR /app
-ENV TEXLIVE_INSTALL_REPO https://ctan.math.illinois.edu/systems/texlive/tlnet
+ENV TEXLIVE_INSTALL_REPO=https://mirror.ctan.org/systems/texlive/tlnet
 
 COPY my_resume.tex .
-COPY sections/ ./sections/
-COPY packages.txt .
+COPY sections ./sections
 COPY res.cls .
-COPY github.png .
+COPY packages.txt .
 
-# 1. Update tlmgr itself
+# 1. Self-update tlmgr
 RUN tlmgr update --self
-RUN tlmgr install scheme-medium
 
-# 2. Try to install everything, but don’t error out if it's already present
-RUN tlmgr install $(cat packages.txt | xargs) biber || true
+# 2. Install what is *actually* missing
+RUN grep -vE '^(verbatim|color|fullpage)$' packages.txt \
+      | xargs tlmgr install --with-doc --with-src && \
+    tlmgr install biber
 
-# 3. Expose the TL binaries on $PATH
+# 3. Put TL binaries on PATH for latexmk
 RUN tlmgr path add
 
-# 4. Now actually compile (will fail if prerequisites truly missing)
+# 4. Compile
 RUN latexmk -pdf -interaction=nonstopmode my_resume.tex
