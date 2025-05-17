@@ -1,32 +1,27 @@
-# ───────────────────────────────────────────────────────────
-# Stage 1: Builder
-# ───────────────────────────────────────────────────────────
-FROM alpine:3.18 AS builder
-
-# (If you need any PDF-building tools, install them here.
-#  For example, uncomment to install pandoc+TeX:
-# RUN apk add --no-cache pandoc texlive)
+# ──────────────────
+# Stage 1: Build PDF
+# ──────────────────
+FROM texlive/texlive:latest AS builder
 
 WORKDIR /app
+COPY my_resume.tex .
+COPY sections/ ./sections/
+COPY packages.txt .
+COPY res.cls .
 
-# Copy your already-built PDF into the builder image
-# (This assumes my_resume.pdf was produced earlier in your CI 
-#  and is present in the repo root.)
-COPY my_resume.pdf .
+# install any missing packages, then compile
+RUN tlmgr update --self \
+ && tlmgr install $(cat packages.txt | xargs) biber \
+ && latexmk -pdf -interaction=nonstopmode my_resume.tex
 
+# ────────────────────────
+# Stage 2: Serve with nginx
+# ────────────────────────
+FROM nginx:alpine AS final
 
-
-# ───────────────────────────────────────────────────────────
-# Stage 2: Final nginx image
-# ───────────────────────────────────────────────────────────
-FROM nginx:alpine
-
-# Copy the resume PDF from the builder stage
+# copy the PDF generated in builder
 COPY --from=builder /app/my_resume.pdf /usr/share/nginx/html/resume.pdf
+COPY index.html             /usr/share/nginx/html/index.html
 
-# Copy an index.html that, e.g., redirects or links to resume.pdf
-COPY index.html /usr/share/nginx/html/index.html
-
-# Expose port 80 and run nginx
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
