@@ -10,6 +10,7 @@ COPY github.png .
 
 # 1. Update tlmgr itself
 RUN tlmgr update --self
+RUN tlmgr install scheme-medium
 
 # 2. Try to install everything, but don’t error out if it's already present
 RUN tlmgr install $(cat packages.txt | xargs) biber || true
