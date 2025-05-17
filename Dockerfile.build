@@ -10,13 +10,14 @@ COPY packages.txt .
 # 1. Self-update tlmgr
 RUN tlmgr update --self
 
-# 2. Install what is *actually* missing
-RUN grep -vE '^(verbatim|color|fullpage)$' packages.txt \
-      | xargs tlmgr install --with-doc --with-src && \
-    tlmgr install biber
+# 2. Try to install everything, but ignore any failures
+RUN (grep -vE '^(verbatim|color|fullpage)$' packages.txt \
+       | xargs tlmgr install --with-doc --with-src || true) && \
+    (tlmgr install biber || true)
 
 # 3. Put TL binaries on PATH for latexmk
 RUN tlmgr path add
 
-# 4. Compile
+# 4. Compile (will still fail if *really* missing)
 RUN latexmk -pdf -interaction=nonstopmode my_resume.tex
+
