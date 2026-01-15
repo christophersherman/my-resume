@@ -16,7 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
+      - name: Compile LaTeX to PDF
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: my_resume.tex
 
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
@@ -44,3 +47,18 @@ jobs:
             linux/arm64
           push: true
           tags: ghcr.io/christophersherman/myresume:latest
+
+      - name: Prepare Vercel deployment
+        run: |
+          mkdir -p dist
+          cp my_resume.pdf dist/resume.pdf
+          cp vercel.json dist/
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./dist
+          vercel-args: '--prod'
