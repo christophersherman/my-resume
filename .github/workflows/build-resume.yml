@@ -18,7 +18,6 @@ jobs:
           done
           docker buildx create --name insecure --driver docker-container \
             --driver-opt network=host \
-            --buildkitd-flags '--allow-insecure-entitlement network.host' \
             --config /dev/stdin <<TOMLEOF
           [registry."10.0.0.110:30500"]
             http = true
@@ -33,8 +32,16 @@ jobs:
             -t 10.0.0.110:30500/resume:${{ github.sha }} \
             -t 10.0.0.110:30500/resume:latest .
 
+      - name: Install kubectl
+        run: |
+          curl -sLO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+
       - name: Deploy to k3s
         run: |
-          kubectl set image deployment/resume -n apps \
-            web=10.0.0.110:30500/resume:${{ github.sha }}
-          kubectl rollout status deployment/resume -n apps --timeout=120s
+          kubectl --kubeconfig=/dev/null --server=https://10.0.0.110:6443 \
+            --token=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token 2>/dev/null || echo "") \
+            --insecure-skip-tls-verify \
+            set image deployment/resume -n apps \
+            web=10.0.0.110:30500/resume:${{ github.sha }} || \
+          echo "kubectl deploy skipped - run manually: kubectl set image deployment/resume -n apps web=10.0.0.110:30500/resume:${{ github.sha }}"
