@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resume
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resume
+  template:
+    metadata:
+      labels:
+        app: resume
+    spec:
+      containers:
+      - name: web
+        image: 10.0.0.110:30500/resume:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: 16Mi
+            cpu: 5m
+          limits:
+            memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: resume
+  namespace: apps
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: resume
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: resume
+  namespace: apps
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - resume.csherman.net
+    secretName: resume-tls
+  rules:
+  - host: resume.csherman.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: resume
+            port:
+              number: 80
