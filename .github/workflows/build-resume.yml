@@ -10,11 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure insecure registry
+      - name: Wait for Docker
         run: |
-          echo '{"insecure-registries":["10.0.0.110:30500"]}' | sudo tee /etc/docker/daemon.json
-          sudo systemctl restart docker || sudo kill -SIGHUP $(pidof dockerd) || true
-          sleep 3
+          for i in $(seq 1 30); do
+            docker info >/dev/null 2>&1 && break
+            sleep 2
+          done
 
       - name: Build image
         run: |
@@ -32,34 +33,3 @@ jobs:
           kubectl set image deployment/resume -n apps \
             web=10.0.0.110:30500/resume:${{ github.sha }}
           kubectl rollout status deployment/resume -n apps --timeout=120s
-
-  ghcr-backup:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Compile LaTeX to PDF
-        uses: xu-cheng/latex-action@v3
-        with:
-          root_file: my_resume.tex
-      - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: resume-pdf
-          path: my_resume.pdf
-      - uses: docker/setup-buildx-action@v3
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build & push to GHCR
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/resume:latest
