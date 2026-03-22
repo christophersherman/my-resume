@@ -7,7 +7,7 @@ on:
 jobs:
   # Job 1: Self-hosted runner — build, push to local registry, deploy to k3s
   deploy:
-    runs-on: arc-runner-set
+    runs-on: arc-runner-resume
     steps:
       - uses: actions/checkout@v4
 
