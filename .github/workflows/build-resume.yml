@@ -10,23 +10,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Wait for Docker
+      - name: Wait for Docker and configure insecure registry
         run: |
           for i in $(seq 1 30); do
             docker info >/dev/null 2>&1 && break
             sleep 2
           done
+          docker buildx create --name insecure --driver docker-container \
+            --driver-opt network=host \
+            --buildkitd-flags '--allow-insecure-entitlement network.host' \
+            --config /dev/stdin <<TOMLEOF
+          [registry."10.0.0.110:30500"]
+            http = true
+          TOMLEOF
+          docker buildx use insecure
 
-      - name: Build image
+      - name: Build and push
         run: |
-          docker build \
+          docker buildx build \
+            --push \
+            --output type=image,push=true,registry.insecure=true \
             -t 10.0.0.110:30500/resume:${{ github.sha }} \
             -t 10.0.0.110:30500/resume:latest .
-
-      - name: Push to local registry
-        run: |
-          docker push 10.0.0.110:30500/resume:${{ github.sha }}
-          docker push 10.0.0.110:30500/resume:latest
 
       - name: Deploy to k3s
         run: |
